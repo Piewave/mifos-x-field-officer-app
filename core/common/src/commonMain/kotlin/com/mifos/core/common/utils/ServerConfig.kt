@@ -28,10 +28,10 @@ data class ServerConfig(
     companion object {
         val DEFAULT = ServerConfig(
             protocol = "https://",
-            endPoint = "apis.mifos.community",
-            apiPath = "/1.0/field/v1/",
+            endPoint = "dev-lms-backend.surepayltd.com",
+            apiPath = "/fineract-provider/api/v1/",
             port = "443",
-            tenant = "mifos-bank-1",
+            tenant = "default",
         )
 
         val LOCALHOST = ServerConfig(

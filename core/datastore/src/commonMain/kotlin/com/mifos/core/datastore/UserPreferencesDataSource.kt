@@ -95,7 +95,7 @@ class UserPreferencesDataSource(
         get() = _userData.value.isAuthenticated
 
     val token: String
-        get() = _userData.value.base64EncodedAuthenticationKey?.let { "Basic $it" } ?: ""
+        get() = _userData.value.base64EncodedAuthenticationKey?.let { "Bearer $it" } ?: ""
 
     val instanceUrl: String get() = _serverConfig.value.getInstanceUrl()
 

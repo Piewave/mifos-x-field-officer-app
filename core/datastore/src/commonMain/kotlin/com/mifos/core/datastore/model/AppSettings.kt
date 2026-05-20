@@ -22,7 +22,7 @@ data class AppSettings(
     companion object {
         val DEFAULT = AppSettings(
             tenant = "mifos-bank-1",
-            baseUrl = "https://apis.mifos.community/",
+            baseUrl = "https://dev-lms-backend.surepayltd.com/",
             appTheme = DarkThemeConfig.FOLLOW_SYSTEM,
             language = LanguageConfig.DEFAULT,
         )

@@ -10,6 +10,7 @@
 package com.mifos.core.network.model
 
 import com.mifos.room.entities.noncore.DataTablePayload
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -18,6 +19,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoansPayload(
+    @SerialName("allowPartialPeriodInterestCalcualtion")
     var allowPartialPeriodInterestCalculation: Boolean? = null,
     var amortizationType: Int? = null,
     var clientId: Int? = null,

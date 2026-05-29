@@ -97,15 +97,53 @@ object DateHelper {
     /**
      * This Method converting the dd-MM-yyyy format type date string into dd MMMM yyyy
      *
-     * @param format     Final Format of date string
-     * @param dateString date string
-     * @return dd MMMM yyyy format date string.
+     * @param format     Final Format of date string (e.g., "dd MMMM yyyy")
+     * @param dateString date string in format "dd-MM-yyyy"
+     * @return formatted date string.
      */
     fun getSpecificFormat(format: String, dateString: String): String {
+        // Handle "dd MMMM yyyy" format which is locale-dependent and not supported by byUnicodePattern
+        if (format == "dd MMMM yyyy") {
+            return convertToFullMonthFormat(dateString)
+        }
+
         val pickerFormat = shortMonthFormat
         val finalFormat = LocalDateTime.Format { byUnicodePattern(format) }
 
         return finalFormat.format(pickerFormat.parse(dateString))
+    }
+
+    /**
+     * Converts dd-MM-yyyy format to dd MMMM yyyy format
+     * e.g., "29-05-2026" -> "29 May 2026"
+     */
+    private fun convertToFullMonthFormat(dateString: String): String {
+        val parts = dateString.split("-")
+        if (parts.size != 3) {
+            return dateString
+        }
+
+        val day = parts[0]
+        val monthNum = parts[1].toIntOrNull() ?: return dateString
+        val year = parts[2]
+
+        val monthName = when (monthNum) {
+            1 -> "January"
+            2 -> "February"
+            3 -> "March"
+            4 -> "April"
+            5 -> "May"
+            6 -> "June"
+            7 -> "July"
+            8 -> "August"
+            9 -> "September"
+            10 -> "October"
+            11 -> "November"
+            12 -> "December"
+            else -> return dateString
+        }
+
+        return "$day $monthName $year"
     }
 
     private fun getFormatConverter(

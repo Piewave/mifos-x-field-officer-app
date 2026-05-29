@@ -57,6 +57,7 @@ import com.mifos.core.designsystem.component.MifosOutlinedTextField
 import com.mifos.core.designsystem.component.MifosScaffold
 import com.mifos.core.designsystem.theme.DesignToken
 import com.mifos.core.model.objects.account.loan.LoanApproval
+import com.mifos.core.model.utils.DateConstants
 import com.mifos.core.network.GenericResponse
 import com.mifos.core.ui.components.MifosProgressIndicator
 import com.mifos.room.entities.accounts.loans.LoanWithAssociationsEntity
@@ -84,6 +85,10 @@ internal fun LoanAccountApprovalScreen(
         onLoanApprove = {
             viewModel.approveLoan(it)
         },
+        onNavigateBackAfterSuccess = {
+            viewModel.resetUiState()
+            navigateBack()
+        },
     )
 }
 
@@ -93,6 +98,7 @@ internal fun LoanAccountApprovalScreen(
     loanWithAssociations: LoanWithAssociationsEntity?,
     navigateBack: () -> Unit,
     onLoanApprove: (loanApproval: LoanApproval) -> Unit,
+    onNavigateBackAfterSuccess: () -> Unit = navigateBack,
 ) {
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember {
@@ -131,8 +137,9 @@ internal fun LoanAccountApprovalScreen(
                         snackBarHostState.showSnackbar(
                             message = message,
                         )
+                        // Navigate back after snackbar is dismissed or after delay
+                        onNavigateBackAfterSuccess()
                     }
-                    navigateBack.invoke()
                 }
 
                 LoanAccountApprovalUiState.ShowProgressbar -> {
@@ -159,11 +166,17 @@ private fun LoanAccountApprovalContent(
     loanWithAssociations: LoanWithAssociationsEntity?,
     onLoanApprove: (loanApproval: LoanApproval) -> Unit,
 ) {
+    val initialApprovedAmount = remember(loanWithAssociations) {
+        (loanWithAssociations?.approvedPrincipal ?: loanWithAssociations?.principal)
+            ?.takeIf { it > 0.0 }
+            ?.toString()
+            .orEmpty()
+    }
     var approvedAmount by rememberSaveable {
-        mutableStateOf(loanWithAssociations?.approvedPrincipal.toString())
+        mutableStateOf(initialApprovedAmount)
     }
     var transactionAmount by rememberSaveable {
-        mutableStateOf(loanWithAssociations?.approvedPrincipal.toString())
+        mutableStateOf(initialApprovedAmount)
     }
     var note by rememberSaveable {
         mutableStateOf("")
@@ -201,9 +214,9 @@ private fun LoanAccountApprovalContent(
     var disbursementDate by rememberSaveable {
         mutableStateOf(
             loanWithAssociations
-                ?.timeline!!.expectedDisbursementDate?.let {
-                DateHelper.getDateAsString(
-                    it,
+                ?.timeline?.expectedDisbursementDate?.let {
+                DateHelper.getDateMonthYearString(
+                    listOf(it[2], it[1], it[0]),
                 )
             },
         )
@@ -224,8 +237,9 @@ private fun LoanAccountApprovalContent(
                             }
                         } else {
                             disburseDatePickerState.selectedDateMillis?.let {
-                                disbursementDate = DateHelper.getDateAsStringFromLong(
-                                    it,
+                                disbursementDate = DateHelper.getSpecificFormat(
+                                    DateConstants.DATE_FORMAT,
+                                    DateHelper.getDateAsStringFromLong(it),
                                 )
                             }
                         }
@@ -266,7 +280,7 @@ private fun LoanAccountApprovalContent(
         Spacer(modifier = Modifier.height(KptTheme.spacing.md))
 
         MifosDatePickerTextField(
-            value = disbursementDate ?: "null",
+            value = disbursementDate.orEmpty(),
             label = stringResource(Res.string.feature_loan_expected_disbursement_on),
             openDatePicker = {
                 pickDisbursementDate = true
@@ -307,18 +321,19 @@ private fun LoanAccountApprovalContent(
                 .padding(horizontal = KptTheme.spacing.md)
                 .heightIn(DesignToken.spacing.dp46),
             onClick = {
-                if (isFieldValid(amount = approvedAmount) &&
-                    isFieldValid(amount = transactionAmount)
-                ) {
-                    val approvedOnDate = DateHelper.getDateAsStringFromLong(
-                        approveDate,
+                val approvedLoanAmount = approvedAmount.toDoubleOrNull()
+
+                if (isFieldValid(amount = approvedAmount) && approvedLoanAmount != null) {
+                    val approvedOnDate = DateHelper.getSpecificFormat(
+                        DateConstants.DATE_FORMAT,
+                        DateHelper.getDateAsStringFromLong(approveDate),
                     )
 
                     onLoanApprove.invoke(
                         LoanApproval(
                             note = note,
                             approvedOnDate = approvedOnDate,
-                            approvedLoanAmount = approvedAmount,
+                            approvedLoanAmount = approvedLoanAmount,
                             expectedDisbursementDate = disbursementDate,
                         ),
                     )
@@ -377,6 +392,6 @@ private fun PreviewLoanAccountApprovalScreen(
         uiState = loanAccountApprovalUiState,
         loanWithAssociations = LoanWithAssociationsEntity(),
         navigateBack = { },
-    ) {
-    }
+        onLoanApprove = { },
+    )
 }

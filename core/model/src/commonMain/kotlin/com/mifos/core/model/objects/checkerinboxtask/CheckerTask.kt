@@ -22,11 +22,11 @@ import kotlin.time.Instant
 data class CheckerTask(
     val id: Int,
     val madeOnDate: Long,
-    val processingResult: String,
+    val processingResult: String? = null,
     val maker: String,
     val actionName: String,
     val entityName: String,
-    val resourceId: String,
+    val resourceId: String? = null,
 ) : Parcelable {
 
     var selectedFlag = false

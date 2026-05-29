@@ -9,6 +9,7 @@
  */
 package com.mifos.core.network
 
+import co.touchlab.kermit.Logger
 import com.mifos.core.datastore.UserPreferencesRepository
 import com.mifos.core.network.model.PostAuthenticationRequest
 import com.mifos.core.network.model.PostAuthenticationResponse
@@ -23,6 +24,7 @@ import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.util.AttributeKey
@@ -63,7 +65,21 @@ class MifosInterceptor(
             }
 
             scope.plugin(HttpSend).intercept { request ->
+                if (request.isLoanDisbursementRequest()) {
+                    Logger.e("LoanDisbursementHttp") {
+                        "Dispatching ${request.method.value} ${request.url}"
+                    }
+                    println("LoanDisbursementHttp: dispatch ${request.method.value} ${request.url}")
+                }
+
                 val initialCall = execute(request)
+                if (request.isLoanDisbursementRequest()) {
+                    Logger.e("LoanDisbursementHttp") {
+                        "Response ${initialCall.response.status.value} for ${request.method.value} ${request.url}"
+                    }
+                    println("LoanDisbursementHttp: response ${initialCall.response.status.value} ${request.method.value} ${request.url}")
+                }
+
                 if (
                     initialCall.response.status != HttpStatusCode.Unauthorized ||
                     request.isAuthenticationRequest() ||
@@ -81,7 +97,15 @@ class MifosInterceptor(
                     request.headers.append(HEADER_AUTH, token)
                 }
 
-                execute(request)
+                val retryCall = execute(request)
+                if (request.isLoanDisbursementRequest()) {
+                    Logger.e("LoanDisbursementHttp") {
+                        "Retry response ${retryCall.response.status.value} for ${request.method.value} ${request.url}"
+                    }
+                    println("LoanDisbursementHttp: retryResponse ${retryCall.response.status.value} ${request.method.value} ${request.url}")
+                }
+
+                retryCall
             }
         }
 
@@ -141,6 +165,13 @@ class MifosInterceptor(
 private fun HttpRequestBuilder.isAuthenticationRequest(): Boolean {
     val normalizedUrl = url.toString().substringBefore('?')
     return normalizedUrl.endsWith("/authentication") || normalizedUrl.endsWith("authentication")
+}
+
+private fun HttpRequestBuilder.isLoanDisbursementRequest(): Boolean {
+    val requestUrl = url.toString()
+    return method == HttpMethod.Post &&
+        requestUrl.contains("/loans/") &&
+        requestUrl.contains("command=disburse")
 }
 
 class ConfigMifos {

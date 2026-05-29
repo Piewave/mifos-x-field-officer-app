@@ -65,7 +65,7 @@ interface LoanService {
     fun disburseLoan(
         @Path("loanId") loanId: Int,
         @Body loanDisbursement: LoanDisbursement?,
-    ): Flow<GenericResponse>
+    ): Flow<HttpResponse>
 
     @POST(APIEndPoint.LOANS + "/{loanId}/transactions?command=repayment")
     suspend fun submitPayment(

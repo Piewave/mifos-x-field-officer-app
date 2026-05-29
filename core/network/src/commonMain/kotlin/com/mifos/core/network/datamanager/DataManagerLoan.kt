@@ -9,6 +9,7 @@
  */
 package com.mifos.core.network.datamanager
 
+import co.touchlab.kermit.Logger
 import com.mifos.core.common.utils.extractErrorMessage
 import com.mifos.core.datastore.UserPreferencesRepository
 import com.mifos.core.model.objects.account.loan.LoanDisbursement
@@ -37,9 +38,12 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 
@@ -301,6 +305,45 @@ class DataManagerLoan(
         loanDisbursement: LoanDisbursement?,
     ): Flow<GenericResponse> {
         return mBaseApiManager.loanService.disburseLoan(loanId, loanDisbursement)
+            .onStart {
+                Logger.e("LoanDisbursementNetwork") {
+                    "Calling backend disbursement for loanId=$loanId with payload=$loanDisbursement"
+                }
+                println("LoanDisbursementNetwork: start loanId=$loanId payload=$loanDisbursement")
+            }
+            .onEach { response ->
+                Logger.e("LoanDisbursementNetwork") {
+                    "Backend disbursement raw status for loanId=$loanId: ${response.status.value}"
+                }
+                println("LoanDisbursementNetwork: raw status loanId=$loanId status=${response.status.value}")
+            }
+            .map { response ->
+                val responseBody = response.bodyAsText()
+                if (!response.status.isSuccess()) {
+                    val errorMessage = extractErrorMessage(response)
+                    Logger.e("LoanDisbursementNetwork") {
+                        "Backend disbursement failed for loanId=$loanId: status=${response.status.value}, body=$responseBody, error=$errorMessage"
+                    }
+                    println(
+                        "LoanDisbursementNetwork: failed loanId=$loanId status=${response.status.value} body=$responseBody error=$errorMessage",
+                    )
+                    throw IllegalStateException(errorMessage)
+                }
+
+                Logger.e("LoanDisbursementNetwork") {
+                    "Backend disbursement success for loanId=$loanId: body=$responseBody"
+                }
+                println("LoanDisbursementNetwork: success loanId=$loanId body=$responseBody")
+
+                Json { ignoreUnknownKeys = true }.decodeFromString<GenericResponse>(responseBody)
+            }
+            .catch { throwable ->
+                Logger.e("LoanDisbursementNetwork", throwable) {
+                    "Backend disbursement failed for loanId=$loanId"
+                }
+                println("LoanDisbursementNetwork: exception loanId=$loanId error=${throwable.message}")
+                throw throwable
+            }
     }
 
     /**

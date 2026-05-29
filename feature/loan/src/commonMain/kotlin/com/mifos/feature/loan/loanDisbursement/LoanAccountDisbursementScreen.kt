@@ -135,7 +135,7 @@ internal fun LoanAccountDisbursementScreen(
 
                 is LoanAccountDisbursementUiState.ShowLoanTransactionTemplate -> {
                     LoanAccountDisbursementContent(
-                        initialAmount = uiState.loanTransactionTemplate.amount.toString(),
+                        initialAmount = uiState.loanTransactionTemplate.amount?.toString().orEmpty(),
                         paymentTypeOptions = uiState.loanTransactionTemplate.paymentTypeOptions,
                         onDisburseLoan = onDisburseLoan,
                     )
@@ -271,11 +271,12 @@ private fun LoanAccountDisbursementContent(
                     val date = DateHelper.getDateAsStringFromLong(
                         disbursementDate,
                     )
+                    val transactionAmount = amount.toDoubleOrNull() ?: return@Button
                     val loanDisbursement = LoanDisbursement(
                         note = note,
-                        paymentId = paymentTypeId,
+                        paymentId = paymentTypeId.takeIf { it > 0 },
                         actualDisbursementDate = date,
-                        transactionAmount = amount.toDouble(),
+                        transactionAmount = transactionAmount,
                     )
 
                     onDisburseLoan.invoke(loanDisbursement)

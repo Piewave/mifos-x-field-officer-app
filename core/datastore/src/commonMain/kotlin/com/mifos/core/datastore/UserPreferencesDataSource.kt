@@ -95,7 +95,9 @@ class UserPreferencesDataSource(
         get() = _userData.value.isAuthenticated
 
     val token: String
-        get() = _userData.value.base64EncodedAuthenticationKey?.let { "Bearer $it" } ?: ""
+        get() = _userData.value.base64EncodedAuthenticationKey
+            ?.toBearerTokenOrEmpty()
+            .orEmpty()
 
     val instanceUrl: String get() = _serverConfig.value.getInstanceUrl()
 
@@ -148,6 +150,20 @@ class UserPreferencesDataSource(
                 appTheme = theme,
             )
         }
+    }
+}
+
+private fun String.toBearerTokenOrEmpty(): String {
+    val normalizedToken = trim()
+    if (normalizedToken.isEmpty()) return ""
+
+    // Do not reuse legacy Basic credentials after JWT migration.
+    if (normalizedToken.startsWith("Basic ", ignoreCase = true)) return ""
+
+    return if (normalizedToken.startsWith("Bearer ", ignoreCase = true)) {
+        normalizedToken
+    } else {
+        "Bearer $normalizedToken"
     }
 }
 

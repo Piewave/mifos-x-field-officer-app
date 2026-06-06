@@ -11,7 +11,7 @@ package com.mifos.core.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 
-val primaryLight = Color(0xFF445E91)
+val primaryLight = Color(0xFF312783)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFD8E2FF)
 val onPrimaryContainerLight = Color(0xFF2B4678)
@@ -119,8 +119,8 @@ val surfaceContainerLightHighContrast = Color(0xFFE2E2E9)
 val surfaceContainerHighLightHighContrast = Color(0xFFD4D4DB)
 val surfaceContainerHighestLightHighContrast = Color(0xFFC6C6CD)
 
-val primaryDark = Color(0xFFADC6FF)
-val onPrimaryDark = Color(0xFF102F60)
+val primaryDark = Color(0xFF312783)
+val onPrimaryDark = Color(0xFFFFFFFF)
 val primaryContainerDark = Color(0xFF2B4678)
 val onPrimaryContainerDark = Color(0xFFD8E2FF)
 val secondaryDark = Color(0xFFBFC6DC)

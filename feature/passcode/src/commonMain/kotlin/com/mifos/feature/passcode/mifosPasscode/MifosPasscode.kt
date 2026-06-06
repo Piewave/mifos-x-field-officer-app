@@ -12,6 +12,7 @@ package com.mifos.feature.passcode.mifosPasscode
 import androidclient.feature.passcode.generated.resources.Res
 import androidclient.feature.passcode.generated.resources.feature_authenticator_error
 import androidclient.feature.passcode.generated.resources.feature_authenticator_ok
+import androidclient.feature.passcode.generated.resources.surepay_logo
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -28,6 +29,7 @@ import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import com.mifos.core.designsystem.component.MifosDialogBox
 import com.mifos.feature.passcode.components.BiometricsKey
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -195,7 +197,9 @@ fun MifosPasscode(
             backgroundColor = KptTheme.colorScheme.background,
             headerTextStyle = KptTheme.typography.headlineMedium,
         ),
-        logoConfig = PasscodeLogoConfig(),
+        logoConfig = PasscodeLogoConfig(
+            logoPainter = painterResource(Res.drawable.surepay_logo),
+        ),
         dotConfig = PasscodeDotConfig(
             dotColor = KptTheme.colorScheme.primary,
             inactiveDotColor = KptTheme.colorScheme.onBackground,

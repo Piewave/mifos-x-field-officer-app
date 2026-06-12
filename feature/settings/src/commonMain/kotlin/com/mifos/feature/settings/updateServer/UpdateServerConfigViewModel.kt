@@ -30,7 +30,15 @@ class UpdateServerConfigViewModel(
 ) : ViewModel() {
 
     private val serverConfigFlow = prefManager.getServerConfig
-    private val _state = mutableStateOf(serverConfigFlow.value)
+    private val _state = mutableStateOf(
+        serverConfigFlow.value.copy(
+            protocol = ServerConfig.DEFAULT.protocol,
+            endPoint = ServerConfig.DEFAULT.endPoint,
+            apiPath = ServerConfig.DEFAULT.apiPath,
+            port = ServerConfig.DEFAULT.port,
+            tenant = ServerConfig.DEFAULT.tenant,
+        ),
+    )
     val state: State<ServerConfig?> get() = _state
 
     private val _result = MutableSharedFlow<Boolean>()

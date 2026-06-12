@@ -39,14 +39,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.mifos.core.common.utils.CurrencyFormatter
 import com.mifos.core.designsystem.component.MifosButton
@@ -78,6 +83,7 @@ import template.core.base.designsystem.theme.KptTheme
 internal fun LoanAccountProfileScreen(
     onNavigateBack: () -> Unit,
     approveLoan: (Int, LoanWithAssociationsEntity) -> Unit,
+    disburseLoan: (Int) -> Unit,
     onRepaymentClick: (LoanWithAssociationsEntity) -> Unit,
     navigateToRepaymentSchedule: (Int) -> Unit,
     navigateToTransactions: (Int) -> Unit,
@@ -91,6 +97,20 @@ internal fun LoanAccountProfileScreen(
     viewModel: LoanAccountProfileViewModel = koinViewModel(),
 ) {
     val state by viewModel.stateFlow.collectAsStateWithLifecycle()
+    val lifecycleOwnerState = rememberUpdatedState(LocalLifecycleOwner.current)
+
+    DisposableEffect(lifecycleOwnerState.value) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshLoanAccountDetails()
+            }
+        }
+
+        lifecycleOwnerState.value.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwnerState.value.lifecycle.removeObserver(observer)
+        }
+    }
 
     EventsEffect(viewModel.eventFlow) { event ->
         when (event) {
@@ -100,6 +120,7 @@ internal fun LoanAccountProfileScreen(
 
                 when (event.action) {
                     LoanProfileAction.Approve -> approveLoan(account.id, account)
+                    LoanProfileAction.Disburse -> disburseLoan(account.id)
                     LoanProfileAction.Repayment -> onRepaymentClick(account)
                     LoanProfileAction.Transfer -> {
                         val account = state.loanAccount ?: return@EventsEffect

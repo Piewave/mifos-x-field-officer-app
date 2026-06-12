@@ -13,6 +13,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import co.touchlab.kermit.Logger
 import com.mifos.core.common.utils.DataState
 import com.mifos.core.data.repository.LoanAccountDisbursementRepository
 import com.mifos.core.model.objects.account.loan.LoanDisbursement
@@ -55,20 +56,41 @@ class LoanAccountDisbursementViewModel(
     }
 
     fun disburseLoan(loanDisbursement: LoanDisbursement?) {
+        Logger.e("LoanDisbursementVM") {
+            "Starting disbursement for loanId=$loanId with payload=$loanDisbursement"
+        }
+        println("LoanDisbursementVM: start loanId=$loanId payload=$loanDisbursement")
         viewModelScope.launch {
             repository.disburseLoan(loanId, loanDisbursement)
                 .collect { state ->
                     when (state) {
-                        is DataState.Error ->
+                        is DataState.Error -> {
+                            Logger.e("LoanDisbursementVM") {
+                                "Disbursement failed for loanId=$loanId: ${state.message}"
+                            }
+                            println("LoanDisbursementVM: error loanId=$loanId message=${state.message}")
                             _loanAccountDisbursementUiState.value =
                                 LoanAccountDisbursementUiState.ShowError(state.message)
-                        DataState.Loading ->
+                        }
+
+                        DataState.Loading -> {
+                            Logger.e("LoanDisbursementVM") {
+                                "Disbursement loading for loanId=$loanId"
+                            }
+                            println("LoanDisbursementVM: loading loanId=$loanId")
                             _loanAccountDisbursementUiState.value = LoanAccountDisbursementUiState.ShowProgressbar
-                        is DataState.Success ->
+                        }
+
+                        is DataState.Success -> {
+                            Logger.e("LoanDisbursementVM") {
+                                "Disbursement success for loanId=$loanId, response=${state.data}"
+                            }
+                            println("LoanDisbursementVM: success loanId=$loanId response=${state.data}")
                             _loanAccountDisbursementUiState.value =
                                 LoanAccountDisbursementUiState.ShowDisburseLoanSuccessfully(
                                     state.data,
                                 )
+                        }
                     }
                 }
         }

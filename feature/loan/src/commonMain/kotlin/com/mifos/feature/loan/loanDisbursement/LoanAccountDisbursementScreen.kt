@@ -10,6 +10,7 @@
 package com.mifos.feature.loan.loanDisbursement
 
 import androidclient.feature.loan.generated.resources.Res
+import co.touchlab.kermit.Logger
 import androidclient.feature.loan.generated.resources.feature_loan_approval_disbursement_date
 import androidclient.feature.loan.generated.resources.feature_loan_cancel
 import androidclient.feature.loan.generated.resources.feature_loan_disburse_loan
@@ -135,7 +136,7 @@ internal fun LoanAccountDisbursementScreen(
 
                 is LoanAccountDisbursementUiState.ShowLoanTransactionTemplate -> {
                     LoanAccountDisbursementContent(
-                        initialAmount = uiState.loanTransactionTemplate.amount.toString(),
+                        initialAmount = uiState.loanTransactionTemplate.amount?.toString().orEmpty(),
                         paymentTypeOptions = uiState.loanTransactionTemplate.paymentTypeOptions,
                         onDisburseLoan = onDisburseLoan,
                     )
@@ -267,18 +268,39 @@ private fun LoanAccountDisbursementContent(
                 .padding(horizontal = KptTheme.spacing.md)
                 .heightIn(DesignToken.spacing.dp44),
             onClick = {
+                Logger.e("LoanDisbursementUI") {
+                    "Submit clicked: amount=$amount, paymentTypeId=$paymentTypeId, disbursementDate=$disbursementDate"
+                }
+                println("LoanDisbursementUI: Submit clicked amount=$amount paymentTypeId=$paymentTypeId dateMillis=$disbursementDate")
                 if (isFieldValid(amount = amount)) {
                     val date = DateHelper.getDateAsStringFromLong(
                         disbursementDate,
                     )
+                    val transactionAmount = amount.toDoubleOrNull()
+                    if (transactionAmount == null) {
+                        Logger.e("LoanDisbursementUI") {
+                            "Submit blocked: amount is not numeric -> '$amount'"
+                        }
+                        return@Button
+                    }
                     val loanDisbursement = LoanDisbursement(
                         note = note,
-                        paymentId = paymentTypeId,
+                        paymentTypeId = paymentTypeId.takeIf { it > 0 },
                         actualDisbursementDate = date,
-                        transactionAmount = amount.toDouble(),
+                        transactionAmount = transactionAmount,
+                        dateFormat = DateHelper.SHORT_MONTH,
                     )
 
+                    Logger.e("LoanDisbursementUI") {
+                        "Dispatching payload: $loanDisbursement"
+                    }
+                    println("LoanDisbursementUI: Dispatching payload=$loanDisbursement")
+
                     onDisburseLoan.invoke(loanDisbursement)
+                } else {
+                    Logger.e("LoanDisbursementUI") {
+                        "Submit blocked: validation failed for amount='$amount'"
+                    }
                 }
             },
         ) {

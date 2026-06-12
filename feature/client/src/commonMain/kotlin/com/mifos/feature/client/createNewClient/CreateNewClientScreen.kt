@@ -750,6 +750,7 @@ private fun handleSubmitClick(
             clientNames.middleName,
             clientNames.lastName,
             addressTypeId = addressTypeId,
+            isAddressEnabled = isAddressEnabled,
         )
     ) {
         return
@@ -1170,6 +1171,7 @@ private fun isAllFieldsValid(
     middleName: String,
     lastName: String,
     addressTypeId: Int,
+    isAddressEnabled: Boolean,
 ): Boolean {
     return when {
         !isFirstNameValid(
@@ -1188,7 +1190,7 @@ private fun isAllFieldsValid(
             false
         }
 
-        !isAddressTypeIdValid(addressTypeId, scope, snackbarHostState) -> {
+        !isAddressTypeIdValid(addressTypeId, scope, snackbarHostState, isAddressEnabled) -> {
             false
         }
 
@@ -1289,7 +1291,11 @@ private fun isAddressTypeIdValid(
     addressTypeId: Int,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
+    isAddressEnabled: Boolean,
 ): Boolean {
+    // Skip validation if address is not enabled
+    if (!isAddressEnabled) return true
+
     return when {
         addressTypeId <= 0 -> {
             scope.launch {

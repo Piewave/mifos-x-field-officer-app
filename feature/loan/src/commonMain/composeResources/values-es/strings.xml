@@ -163,9 +163,11 @@
     <string name="feature_loan_profile_item_standing_instructions_subtitle">Configuración de pagos automáticos</string>
     <string name="feature_loan_profile_status_active">Activo</string>
     <string name="feature_loan_profile_status_pending">Pendiente</string>
+    <string name="feature_loan_profile_status_approved">Aprobado</string>
     <string name="feature_loan_profile_status_overpaid">Sobrepagado</string>
     <string name="feature_loan_profile_status_unknown">Desconocido</string>
     <string name="feature_loan_profile_action_approve">Aprobar Cuenta</string>
+    <string name="feature_loan_profile_action_disburse">Desembolsar Crédito</string>
     <string name="feature_loan_profile_action_repayment">Realizar Pago</string>
     <string name="feature_loan_profile_action_transfer">Transferir Fondos</string>
     <string name="feature_loan_profile_action_view">Ver Acción</string>

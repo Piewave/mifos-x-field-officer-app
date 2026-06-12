@@ -167,9 +167,11 @@
     <string name="feature_loan_profile_item_standing_instructions_subtitle">Automated payment settings</string>
     <string name="feature_loan_profile_status_active">Active</string>
     <string name="feature_loan_profile_status_pending">Pending</string>
+    <string name="feature_loan_profile_status_approved">Approved</string>
     <string name="feature_loan_profile_status_overpaid">Overpaid</string>
     <string name="feature_loan_profile_status_unknown">Unknown</string>
     <string name="feature_loan_profile_action_approve">Approve Account</string>
+    <string name="feature_loan_profile_action_disburse">Disburse Loan</string>
     <string name="feature_loan_profile_action_repayment">Make Repayment</string>
     <string name="feature_loan_profile_action_transfer">Transfer Funds</string>
     <string name="feature_loan_profile_action_view">View Action</string>

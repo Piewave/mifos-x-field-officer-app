@@ -571,7 +571,7 @@ private fun CheckerInboxItem(
                 )
                 Spacer(modifier = Modifier.height(KptTheme.spacing.md))
                 Text(
-                    text = checkerTask.processingResult,
+                    text = checkerTask.processingResult ?: "Pending",
                     style = KptTheme.typography.bodyMedium,
                 )
                 Row(

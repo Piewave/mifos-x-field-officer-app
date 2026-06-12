@@ -83,6 +83,7 @@ fun NavGraphBuilder.loanDestination(
         onNavigateBack = navController::popBackStack,
         navController = navController,
         approveLoan = navController::navigateToLoanApprovalScreen,
+        disburseLoan = navController::navigateToLoanDisbursementScreen,
         onRepaymentClick = navController::navigateToLoanRepaymentScreen,
         navigateToRepaymentSchedule = navController::navigateToLoanRepaymentScheduleScreen,
         navigateToTransactions = navController::navigateToLoanTransactionScreen,

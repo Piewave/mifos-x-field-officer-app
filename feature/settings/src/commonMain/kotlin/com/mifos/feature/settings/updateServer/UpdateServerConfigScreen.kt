@@ -213,7 +213,7 @@ internal fun UpdateServerConfigScreenContent(
                         modifier = Modifier
                             .height(DesignToken.sizes.profile)
                             .weight(1f),
-                        enabled = !hasAnyError,
+                        enabled = false,
                         shape = DesignToken.shapes.largeIncreased,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = KptTheme.colorScheme.primary,
@@ -250,7 +250,7 @@ internal fun UpdateServerConfigScreenContent(
                         modifier = Modifier
                             .height(DesignToken.sizes.profile)
                             .weight(1f),
-                        enabled = !hasAnyError,
+                        enabled = false,
                         shape = DesignToken.shapes.largeIncreased,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = KptTheme.colorScheme.primary,
@@ -320,6 +320,7 @@ internal fun UpdateServerConfigScreenContent(
                     onValueChange = {
                         onEvent(UpdateServerConfigEvent.UpdateProtocol(it))
                     },
+                    readOnly = true,
                     shape = KptTheme.shapes.large,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = KptTheme.colorScheme.primary,
@@ -356,6 +357,7 @@ internal fun UpdateServerConfigScreenContent(
                     onValueChange = {
                         onEvent(UpdateServerConfigEvent.UpdateEndPoint(it))
                     },
+                    readOnly = true,
                     shape = KptTheme.shapes.large,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = KptTheme.colorScheme.primary,
@@ -391,6 +393,7 @@ internal fun UpdateServerConfigScreenContent(
                     onValueChange = {
                         onEvent(UpdateServerConfigEvent.UpdateApiPath(it))
                     },
+                    readOnly = true,
                     shape = KptTheme.shapes.large,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = KptTheme.colorScheme.primary,
@@ -425,6 +428,7 @@ internal fun UpdateServerConfigScreenContent(
                     onValueChange = {
                         onEvent(UpdateServerConfigEvent.UpdatePort(it))
                     },
+                    readOnly = true,
                     shape = KptTheme.shapes.large,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = KptTheme.colorScheme.primary,
